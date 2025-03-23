@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "db_zpark_pyf"
+description = "A code-first approach to managing PySpark jobs, built on the pyfecto framework and geared for Databricks environments"
+authors = ["fernanluyano"]
+license = "MIT"
+readme = "README.md"
+packages = [
+    { include = "db_zpark_pyf", from = "src" }
+]
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+gitpython = "^3.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^6.0.0"
+black = "^25.1.0"
+isort = "^6.0.0"
+flake8 = "^7.1.2"
+mypy = "^1.15.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
