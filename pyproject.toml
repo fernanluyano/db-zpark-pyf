@@ -12,6 +12,7 @@ version = "0.1.0"
 [tool.poetry.dependencies]
 python = "^3.11"
 gitpython = "^3.1.0"
+pyfecto = "^0.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
@@ -20,6 +21,7 @@ black = "^25.1.0"
 isort = "^6.0.0"
 flake8 = "^7.1.2"
 mypy = "^1.15.0"
+pyspark = "^3.5.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -28,3 +30,14 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[[tool.mypy.overrides]]
+module = "pyfecto.*"
+ignore_missing_imports = true
