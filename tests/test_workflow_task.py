@@ -234,9 +234,7 @@ class TestWorkflowTask(unittest.TestCase):
 
             def start_task(self, env):
                 # This would normally be logged at DEBUG level
-                return PYIO.log_debug("Debug message for testing").then(
-                    PYIO.unit()
-                )
+                return PYIO.log_debug("Debug message for testing").then(PYIO.unit())
 
         # Run the task
         task = CustomRuntimeTask(custom_runtime)
