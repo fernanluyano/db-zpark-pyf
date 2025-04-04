@@ -3,10 +3,11 @@ from unittest import mock
 
 from pyfecto.pyio import PYIO
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+from pyspark.sql.types import IntegerType, StringType, StructField, StructType
 
-from db_zpark_pyf.workflow_subtask import WorkflowSubtask, SubtaskContext
-from db_zpark_pyf.workflow_subtasks_runner import WorkflowSubtasksRunner, SequentialRunner
+from db_zpark_pyf.workflow_subtask import SubtaskContext, WorkflowSubtask
+from db_zpark_pyf.workflow_subtasks_runner import (SequentialRunner,
+                                                   WorkflowSubtasksRunner)
 from db_zpark_pyf.workflow_task import TaskEnvironment
 
 
@@ -30,10 +31,11 @@ class MockSparkSession:
     """A simple wrapper around a real SparkSession for testing."""
 
     def __init__(self):
-        self.spark = SparkSession.builder \
-            .appName("WorkflowSubtasksRunnerTest") \
-            .master("local[1]") \
+        self.spark = (
+            SparkSession.builder.appName("WorkflowSubtasksRunnerTest")
+            .master("local[1]")
             .getOrCreate()
+        )
 
     def createDataFrame(self, data, schema=None):
         return self.spark.createDataFrame(data, schema)
@@ -65,10 +67,12 @@ class TestSubtask(WorkflowSubtask):
     def read_source(self, env: TaskEnvironment) -> DataFrame:
         print(f"Reading source for {self.context.name}")
         data = [(self.context.name, 1)]
-        schema = StructType([
-            StructField("name", StringType(), False),
-            StructField("value", IntegerType(), False)
-        ])
+        schema = StructType(
+            [
+                StructField("name", StringType(), False),
+                StructField("value", IntegerType(), False),
+            ]
+        )
         return env.spark_session.createDataFrame(data, schema)
 
     def transformer(self, env: TaskEnvironment, input_df: DataFrame) -> DataFrame:
@@ -97,16 +101,21 @@ class TestWorkflowSubtasksRunner(unittest.TestCase):
         self.log_messages = []
 
         # Mock the logger to capture logs
-        self.patcher = mock.patch('pyfecto.runtime.LOGGER.info')
+        self.patcher = mock.patch("pyfecto.runtime.LOGGER.info")
         self.mock_logger_info = self.patcher.start()
-        self.mock_logger_info.side_effect = lambda msg, **kwargs: self.log_messages.append(msg)
+        self.mock_logger_info.side_effect = (
+            lambda msg, **kwargs: self.log_messages.append(msg)
+        )
 
-        self.error_patcher = mock.patch('pyfecto.runtime.LOGGER.error')
+        self.error_patcher = mock.patch("pyfecto.runtime.LOGGER.error")
         self.mock_logger_error = self.error_patcher.start()
-        self.mock_logger_error.side_effect = lambda msg, **kwargs: self.log_messages.append(msg)
+        self.mock_logger_error.side_effect = (
+            lambda msg, **kwargs: self.log_messages.append(msg)
+        )
 
         # Configure Spark to be less verbose during tests
         import logging
+
         logging.getLogger("py4j").setLevel(logging.ERROR)
 
     def tearDown(self):
@@ -135,13 +144,15 @@ class TestWorkflowSubtasksRunner(unittest.TestCase):
         subtasks = [
             TestSubtask("task1", success=True),
             TestSubtask("task2", success=True),
-            TestSubtask("task3", success=True)
+            TestSubtask("task3", success=True),
         ]
 
         # Print initial object IDs and executed status
         print("\n=== BEFORE EXECUTION ===")
         for i, subtask in enumerate(subtasks):
-            print(f"Subtask {i} ({subtask.context.name}) - ID: {id(subtask)}, executed: {subtask.executed}")
+            print(
+                f"Subtask {i} ({subtask.context.name}) - ID: {id(subtask)}, executed: {subtask.executed}"
+            )
 
         # Run the tasks sequentially
         runner = SequentialRunner(subtasks)
@@ -153,19 +164,26 @@ class TestWorkflowSubtasksRunner(unittest.TestCase):
         # Print final object IDs and executed status
         print("\n=== AFTER EXECUTION ===")
         for i, subtask in enumerate(subtasks):
-            print(f"Subtask {i} ({subtask.context.name}) - ID: {id(subtask)}, executed: {subtask.executed}")
+            print(
+                f"Subtask {i} ({subtask.context.name}) - ID: {id(subtask)}, executed: {subtask.executed}"
+            )
 
         # Debug runner's subtasks too
         print("\n=== RUNNER'S SUBTASKS ===")
         for i, subtask in enumerate(runner.subtasks):
-            print(f"Runner's subtask {i} ({subtask.context.name}) - ID: {id(subtask)}, executed: {subtask.executed}")
+            print(
+                f"Runner's subtask {i} ({subtask.context.name}) - ID: {id(subtask)}, executed: {subtask.executed}"
+            )
 
         # Should complete successfully
         self.assertIsNone(result)
 
         # All tasks should have been executed
         for i, subtask in enumerate(subtasks):
-            self.assertTrue(subtask.executed, f"Subtask {subtask.context.name} should have been executed")
+            self.assertTrue(
+                subtask.executed,
+                f"Subtask {subtask.context.name} should have been executed",
+            )
 
     def test_sequential_runner_failure(self):
         """Test that a failure in one subtask stops execution and returns the error."""
@@ -173,7 +191,7 @@ class TestWorkflowSubtasksRunner(unittest.TestCase):
         subtasks = [
             TestSubtask("task1", success=True),
             TestSubtask("task2", success=False),  # This one will fail
-            TestSubtask("task3", success=True)  # This one should not run
+            TestSubtask("task3", success=True),  # This one should not run
         ]
 
         # Run the tasks sequentially
@@ -203,7 +221,7 @@ class TestWorkflowSubtasksRunner(unittest.TestCase):
         subtasks = [
             TestSubtask("task1", env=shared_env),
             TestSubtask("task2", env=shared_env),
-            TestSubtask("task3", env=shared_env)
+            TestSubtask("task3", env=shared_env),
         ]
 
         # Run the tasks sequentially

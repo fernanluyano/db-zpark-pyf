@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List, Callable, Any
+from typing import Any, Callable, List
 
 from pyfecto.pyio import PYIO
 
@@ -34,7 +34,10 @@ class WorkflowSubtasksRunner(ABC):
 
         seq_runs = []
         for subtask in self.subtasks:
-            def make_runner(s: WorkflowSubtask = subtask) -> Callable[[Any], PYIO[Exception | None, None]]:
+
+            def make_runner(
+                s: WorkflowSubtask = subtask,
+            ) -> Callable[[Any], PYIO[Exception | None, None]]:
                 return lambda prev: self._run_one(s)
 
             seq_runs.append(make_runner())

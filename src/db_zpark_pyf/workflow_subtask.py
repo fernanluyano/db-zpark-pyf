@@ -113,7 +113,6 @@ class WorkflowSubtask(ABC):
             .flat_map(_process_transformed_data)
         )
 
-        # Handle errors based on configuration
         return flow.match_pyio(
             success=lambda _: PYIO.unit(),
             failure=lambda e: (
@@ -130,7 +129,6 @@ class WorkflowSubtask(ABC):
         Args:
             env: The task environment
         """
-        # Default implementation does nothing
         pass
 
     @abstractmethod
@@ -178,5 +176,4 @@ class WorkflowSubtask(ABC):
         Args:
             env: The task environment
         """
-        # Default implementation does nothing
         pass
